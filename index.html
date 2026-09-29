@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quick Cart — Beauty & Cosmetics</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#fff8fb;color:#2b2026}
+header{background:#fff;border-bottom:1px solid #f0dfe7;position:sticky;top:0;z-index:5}
+.nav{max-width:1100px;margin:auto;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:15px}
+.logo{font-size:25px;font-weight:800;color:#d63384}.logo span{color:#222}
+.search{flex:1;max-width:420px;padding:11px 15px;border:1px solid #ead6df;border-radius:25px;outline:none}
+.cart{border:0;background:#d63384;color:white;padding:11px 17px;border-radius:22px;cursor:pointer;font-weight:bold}
+.hero{max-width:1100px;margin:22px auto;padding:55px 25px;border-radius:24px;background:linear-gradient(120deg,#ffd9e9,#fff0f6);text-align:center}
+.hero h1{font-size:44px;margin:0 0 12px}.hero p{font-size:18px;margin:0 0 22px;color:#624b56}
+.btn{display:inline-block;background:#d63384;color:white;padding:13px 24px;border-radius:25px;text-decoration:none;border:0;cursor:pointer;font-weight:bold}
+section{max-width:1100px;margin:28px auto;padding:0 20px}
+h2{font-size:28px}.cats{display:flex;gap:12px;flex-wrap:wrap}.cat{background:#fff;border:1px solid #ead6df;border-radius:20px;padding:10px 16px;cursor:pointer}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}.card{background:#fff;border:1px solid #f0dfe7;border-radius:18px;overflow:hidden;box-shadow:0 5px 18px #dca8bf22}.pic{height:210px;display:flex;align-items:center;justify-content:center;font-size:70px;background:#fff0f6}.info{padding:15px}.name{font-weight:bold;font-size:17px}.price{font-weight:800;color:#d63384;margin:9px 0}.add{width:100%;padding:10px;border:0;border-radius:12px;background:#2b2026;color:#fff;cursor:pointer}
+footer{margin-top:45px;background:#2b2026;color:white;text-align:center;padding:30px}
+#drawer{position:fixed;right:-420px;top:0;width:390px;max-width:92%;height:100%;background:white;z-index:10;box-shadow:-5px 0 25px #0002;padding:22px;transition:.25s;overflow:auto}
+#drawer.open{right:0}.close{float:right;border:0;background:none;font-size:25px;cursor:pointer}.item{display:flex;justify-content:space-between;gap:10px;padding:12px 0;border-bottom:1px solid #eee}.qty button{border:1px solid #ddd;background:#fff;border-radius:6px;margin:0 3px}.checkout{margin-top:20px;width:100%;padding:13px;border:0;border-radius:12px;background:#25d366;color:white;font-weight:bold;cursor:pointer}
+@media(max-width:800px){.grid{grid-template-columns:repeat(2,1fr)}.hero h1{font-size:34px}.nav{flex-wrap:wrap}.search{order:3;max-width:none;flex-basis:100%}}
+@media(max-width:480px){.grid{grid-template-columns:1fr 1fr}.pic{height:160px;font-size:55px}.hero{margin:12px}.hero h1{font-size:29px}section{padding:0 12px}}
+</style>
+</head>
+<body>
+<header><div class="nav">
+<div class="logo">Quick <span>Cart</span> 🛍️</div>
+<input id="search" class="search" placeholder="Search cosmetics..." oninput="render()">
+<button class="cart" onclick="toggleCart()">Cart (<span id="count">0</span>)</button>
+</div></header>
+
+<div class="hero">
+<h1>Beauty, Delivered Quickly ✨</h1>
+<p>Discover makeup, skincare, hair care and fragrances at Quick Cart.</p>
+<a href="#products" class="btn">Shop Now</a>
+</div>
+
+<section><h2>Categories</h2><div class="cats">
+<button class="cat" onclick="setCat('All')">All</button><button class="cat" onclick="setCat('Makeup')">💄 Makeup</button>
+<button class="cat" onclick="setCat('Skincare')">🧴 Skincare</button><button class="cat" onclick="setCat('Haircare')">💇 Hair Care</button>
+<button class="cat" onclick="setCat('Fragrance')">🌸 Fragrance</button>
+</div></section>
+
+<section id="products"><h2>Featured Products</h2><div id="grid" class="grid"></div></section>
+
+<footer><h2>Quick Cart</h2><p>Beauty & Cosmetics Online Store</p><p>© 2026 Quick Cart. All rights reserved.</p></footer>
+
+<div id="drawer">
+<button class="close" onclick="toggleCart()">×</button><h2>Your Cart</h2><div id="cartItems"></div>
+<h3>Total: ₹<span id="total">0</span></h3>
+<button class="checkout" onclick="orderWhatsApp()">Order on WhatsApp</button>
+</div>
+
+<script>
+const products=[
+{id:1,name:"Velvet Matte Lipstick",cat:"Makeup",price:499,emoji:"💄"},
+{id:2,name:"Glow Face Serum",cat:"Skincare",price:699,emoji:"✨"},
+{id:3,name:"Hydrating Face Cream",cat:"Skincare",price:549,emoji:"🧴"},
+{id:4,name:"Volume Mascara",cat:"Makeup",price:399,emoji:"👁️"},
+{id:5,name:"Rose Body Mist",cat:"Fragrance",price:599,emoji:"🌹"},
+{id:6,name:"Nourishing Hair Oil",cat:"Haircare",price:449,emoji:"💆"},
+{id:7,name:"Blush & Glow Palette",cat:"Makeup",price:799,emoji:"🌸"},
+{id:8,name:"Daily Sunscreen SPF 50",cat:"Skincare",price:649,emoji:"☀️"}
+];
+let cart=JSON.parse(localStorage.getItem("quickCart")||"[]"), cat="All";
+function setCat(c){cat=c;render()}
+function render(){
+ const q=document.getElementById("search").value.toLowerCase();
+ const list=products.filter(p=>(cat==="All"||p.cat===cat)&&p.name.toLowerCase().includes(q));
+ document.getElementById("grid").innerHTML=list.map(p=>`<div class="card"><div class="pic">${p.emoji}</div><div class="info"><div class="name">${p.name}</div><small>${p.cat}</small><div class="price">₹${p.price}</div><button class="add" onclick="add(${p.id})">Add to Cart</button></div></div>`).join("");
+ updateCart();
+}
+function add(id){const x=cart.find(i=>i.id===id);x?x.qty++:cart.push({id,qty:1});save()}
+function save(){localStorage.setItem("quickCart",JSON.stringify(cart));render()}
+function updateCart(){
+ document.getElementById("count").textContent=cart.reduce((s,i)=>s+i.qty,0);
+ let total=0;
+ document.getElementById("cartItems").innerHTML=cart.length?cart.map(i=>{let p=products.find(x=>x.id===i.id);total+=p.price*i.qty;return `<div class="item"><div>${p.emoji} <b>${p.name}</b><br>₹${p.price} × ${i.qty}</div><div class="qty"><button onclick="change(${i.id},-1)">−</button>${i.qty}<button onclick="change(${i.id},1)">+</button></div></div>`}).join(""):"<p>Your cart is empty.</p>";
+ document.getElementById("total").textContent=total;
+}
+function change(id,d){let x=cart.find(i=>i.id===id);x.qty+=d;if(x.qty<=0)cart=cart.filter(i=>i.id!==id);save()}
+function toggleCart(){document.getElementById("drawer").classList.toggle("open")}
+function orderWhatsApp(){
+ if(!cart.length)return alert("Your cart is empty.");
+ let lines=cart.map(i=>{let p=products.find(x=>x.id===i.id);return `${p.name} x ${i.qty} = ₹${p.price*i.qty}`}).join("%0A");
+ let total=cart.reduce((s,i)=>s+products.find(p=>p.id===i.id).price*i.qty,0);
+ let phone="916006116772"; // Replace with your WhatsApp number
+ window.open(`https://wa.me/${phone}?text=Hello Quick Cart,%0AI want to order:%0A${lines}%0A%0ATotal: ₹${total}`,"_blank");
+}
+render();
+</script>
+</body>
+</html>
