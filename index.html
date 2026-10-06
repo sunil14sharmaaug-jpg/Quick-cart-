@@ -62,14 +62,15 @@ const products=[
 {id:5,name:"Rose Body Mist",cat:"Fragrance",price:599,emoji:"🌹"},
 {id:6,name:"Nourishing Hair Oil",cat:"Haircare",price:449,emoji:"💆"},
 {id:7,name:"Blush & Glow Palette",cat:"Makeup",price:799,emoji:"🌸"},
-{id:8,name:"Daily Sunscreen SPF 50",cat:"Skincare",price:649,emoji:"☀️"}
+{id:8,name:"Daily Sunscreen SPF 50",cat:"Skincare",price:649,emoji:"☀️"},
+{id:9,name:"Swiss Beauty Moist Heist Lip Oil",cat:"Makeup",price:199,emoji:"💋",image:"moist-heist.png"}
 ];
 let cart=JSON.parse(localStorage.getItem("quickCart")||"[]"), cat="All";
 function setCat(c){cat=c;render()}
 function render(){
  const q=document.getElementById("search").value.toLowerCase();
  const list=products.filter(p=>(cat==="All"||p.cat===cat)&&p.name.toLowerCase().includes(q));
- document.getElementById("grid").innerHTML=list.map(p=>`<div class="card"><div class="pic">${p.emoji}</div><div class="info"><div class="name">${p.name}</div><small>${p.cat}</small><div class="price">₹${p.price}</div><button class="add" onclick="add(${p.id})">Add to Cart</button></div></div>`).join("");
+ document.getElementById("grid").innerHTML=list.map(p=>`<div class="card"><div class="pic">${p.image?`<img src="${p.image}" alt="${p.name}" style="max-width:100%;height:100%;object-fit:contain">`:p.emoji}</div><div class="info"><div class="name">${p.name}</div><small>${p.cat}</small><div class="price">₹${p.price}</div><button class="add" onclick="add(${p.id})">Add to Cart</button></div></div>`).join("");
  updateCart();
 }
 function add(id){const x=cart.find(i=>i.id===id);x?x.qty++:cart.push({id,qty:1});save()}
